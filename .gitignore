@@ -1,0 +1,55 @@
+# Ignore node_modules directory
+node_modules/
+model-*
+# Ignore logs
+logs/
+*.log
+npm-debug.log*
+
+# Ignore build directories
+dist/
+build/
+
+# Ignore environment variable files
+.env
+.env.local
+.env.*.local
+.venv/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore coverage reports
+coverage/
+
+# Ignore dependency directories
+jspm_packages/
+
+# Ignore compiled files
+*.out
+*.class
+*.pyc
+*.pyo
+*.pyd
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+*.sublime-project
+*.sublime-workspace
