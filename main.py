@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 # Завантаження попередньо навченої моделі
-model = tf.keras.models.load_model('model-10.h5')
+# model = tf.keras.models.load_model('model-10.h5')
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
 
 # Функція для передбачення класу зображення
@@ -18,7 +18,7 @@ def predict(image, model):
     return predictions
 
 # Інтерфейс Streamlit
-st.title('Image Classification System')
+st.write('## Image Classification System')
 
 # if 'selected_models' not in st.session_state:
 #     st.session_state.selected_models = ['model-10.h5']
@@ -57,27 +57,28 @@ if st.session_state.uploaded_file is not None:
                 model = tf.keras.models.load_model(model_name)
                 predictions = predict(image, model)
                 top_3_indices = np.argsort(predictions[0])[-3:][::-1]
-                top_3_predictions = [(class_indices[int(index)], predictions[0][index]) for index in top_3_indices]
+                top_3_predictions = [(class_indices[index], predictions[0][index]) for index in top_3_indices]
                 st.session_state.all_predictions.append((model_name, top_3_predictions))
 
     with col2:
+        Graph, Data = st.tabs(["Graph", "Data"])
+        with Graph:
         # Підготовка даних для стовпчикової діаграми
-        chart_data = pd.DataFrame(columns=['Model', 'Class', 'Probability'])
-        for model_name, top_3_predictions in st.session_state.all_predictions:
-            for class_name, probability in top_3_predictions:
-                new_row = pd.DataFrame({'Model': [model_name], 'Class': [class_name], 'Probability': [probability]})
-                chart_data = pd.concat([chart_data, new_row], ignore_index=True)
-        
-        if selected_models:
-            chart_data = chart_data[chart_data['Model'].isin(selected_models)]
+            chart_data = pd.DataFrame(columns=['Model', 'Class', 'Probability'])
+            for model_name, top_3_predictions in st.session_state.all_predictions:
+                for class_name, probability in top_3_predictions:
+                    new_row = pd.DataFrame({'Model': [model_name], 'Class': [class_name], 'Probability': [probability]})
+                    chart_data = pd.concat([chart_data, new_row], ignore_index=True)
             
-            # Побудова стовпчикової діаграми
-            if len(selected_models) == 1:
-                # Якщо вибрана тільки одна модель
-                chart_data = chart_data.set_index('Class')
-                st.bar_chart(chart_data[['Probability']])
-            else:
-                chart_data = chart_data.pivot(index='Class', columns='Model', values='Probability')
-                st.bar_chart(chart_data)
+            if selected_models:
+                # chart_data = chart_data[chart_data['Model'].isin(selected_models)]
+                # Побудова стовпчикової діаграми
+                if len(selected_models) == 1:
+                    chart_data = chart_data.set_index('Class')
+                    st.bar_chart(chart_data[['Probability']])
+                else:
+                    chart_data = chart_data.pivot(index='Class', columns='Model', values='Probability')
+                    st.bar_chart(chart_data, stack=False)
 
-            st.write(chart_data)
+        with Data:
+            st.write(chart_data, use_container_width=True)
