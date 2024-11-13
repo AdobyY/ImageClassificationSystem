@@ -7,6 +7,8 @@ logs/
 npm-debug.log*
 
 users.db
+user_models/
+
 # Ignore build directories
 dist/
 build/

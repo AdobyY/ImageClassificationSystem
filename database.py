@@ -1,5 +1,10 @@
 import psycopg2
 import bcrypt
+import json
+from psycopg2 import pool
+import os
+import streamlit as st
+import uuid  # Add import for unique identifiers
 
 # Налаштування пулу з'єднань
 connection_pool = psycopg2.pool.SimpleConnectionPool(
@@ -27,15 +32,34 @@ def create_table():
                             password BYTEA NOT NULL)''')
         conn.commit()
     except (Exception, psycopg2.Error) as error:
-        print(f"Помилка при створенні таблиці: {error}")
+        print(f"Помилка при створенні таблиці users: {error}")
+    finally:
+        if cursor:
+            cursor.close()
+        release_connection(conn)
+
+# New: Update models table to include model_path
+def create_models_table():
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS models (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                            model_name TEXT NOT NULL,
+                            model_path TEXT NOT NULL,
+                            class_indices JSON NOT NULL)''')  # Removed BYTEA
+        conn.commit()
+    except (Exception, psycopg2.Error) as error:
+        print(f"Помилка при створенні таблиці models: {error}")
     finally:
         if cursor:
             cursor.close()
         release_connection(conn)
 
 def add_user(username, password):
-    conn = get_connection()
     try:
+        conn = get_connection()
         cursor = conn.cursor()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)',
@@ -50,8 +74,8 @@ def add_user(username, password):
         release_connection(conn)
 
 def get_user(username):
-    conn = get_connection()
     try:
+        conn = get_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
@@ -67,5 +91,42 @@ def get_user(username):
             cursor.close()
         release_connection(conn)
 
+# Updated: Add model with file path
+def add_model(user_id, model_name, class_indices, model_filename, model_path):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        unique_suffix = uuid.uuid4().hex  # Generate unique identifier
+        full_model_name = f"{model_name}_{st.session_state['username']}_{unique_suffix}.h5"  # Naming convention
+        full_model_path = os.path.join(model_path, full_model_name)  # Complete file path
+        cursor.execute('INSERT INTO models (user_id, model_name, model_path, class_indices) VALUES (%s, %s, %s, %s)',
+                      (user_id, model_name, full_model_path, json.dumps(class_indices)))
+        conn.commit()
+        return full_model_path  # Return the path for saving the file
+    except (Exception, psycopg2.Error) as error:
+        print(f"Помилка при додаванні моделі: {error}")
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        release_connection(conn)
+
+# Updated: Retrieve models for a user, including model_path
+def get_models(user_id):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT model_name, class_indices, model_path FROM models WHERE user_id = %s', (user_id,))
+        models = cursor.fetchall()
+        return models
+    except (Exception, psycopg2.Error) as error:
+        print(f"Помилка при отриманні моделей: {error}")
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        release_connection(conn)
+
 # Створення таблиці при запуску
 create_table()
+create_models_table()

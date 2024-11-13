@@ -2,12 +2,14 @@ from streamlit_option_menu import option_menu
 import streamlit as st
 from pages.predict import show_predict_page
 from pages.models import show_models_page
+from pages.upload import show_upload_page
 from database import add_user, get_user
 import bcrypt
 
-# Створення бази даних та таблиці користувачів
-from database import create_table
+# Створення бази даних та таблиці ��ористувачів
+from database import create_table, create_models_table
 create_table()
+create_models_table()
 
 # Функція для реєстрації користувачів
 def register_user():
@@ -18,7 +20,7 @@ def register_user():
     if st.button("Зареєструватися"):
         if username and password and confirm_password:
             if password != confirm_password:
-                st.error("Паролі не збігаються")
+                st.error("Паролі не з��ігаються")
             else:
                 user = get_user(username)
                 if user:
@@ -54,17 +56,21 @@ if st.session_state['logged_in']:
     with st.sidebar:
         selected = option_menu(
             menu_title=None,
-            options=["Predict", "Models"],
-            icons=["house", "book"]
+            options=["Predict", "Models", "Model Upload"],
+            icons=["house", "book", "download"]
         )
         if st.button("Logout"):
             st.session_state['logged_in'] = False
+            st.session_state['username'] = ""
             st.rerun()
 
     if selected == "Predict":
         show_predict_page()
     elif selected == "Models":
         show_models_page()
+    elif selected == "Model Upload":
+        show_upload_page()
+        
 else:
     auth_option = st.sidebar.radio("Виберіть опцію", ["Вхід", "Реєстрація"])
     if auth_option == "Вхід":
