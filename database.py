@@ -38,7 +38,6 @@ def create_table():
             cursor.close()
         release_connection(conn)
 
-# New: Update models table to include model_path
 def create_models_table():
     conn = get_connection()
     try:
@@ -73,6 +72,7 @@ def add_user(username, password):
             cursor.close()
         release_connection(conn)
 
+st.cache_data
 def get_user(username):
     try:
         conn = get_connection()
@@ -91,7 +91,6 @@ def get_user(username):
             cursor.close()
         release_connection(conn)
 
-# Updated: Add model with file path
 def add_model(user_id, model_name, class_indices, model_filename, model_path):
     try:
         conn = get_connection()
@@ -111,7 +110,7 @@ def add_model(user_id, model_name, class_indices, model_filename, model_path):
             cursor.close()
         release_connection(conn)
 
-# Updated: Retrieve models for a user, including model_path
+@st.cache_data
 def get_models(user_id):
     try:
         conn = get_connection()

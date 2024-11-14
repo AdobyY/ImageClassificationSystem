@@ -1,7 +1,8 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+
+from utils import *
 
 
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
@@ -28,7 +29,7 @@ def show_models_page():
 
     # Load the models
     for model_name, model_path in model_files.items():
-        models[model_name] = tf.keras.models.load_model(model_path)
+        models[model_name] = load_model(model_path)
 
     # Select model from sidebar
     selected_model = st.sidebar.selectbox("Select a model", list(models.keys()))

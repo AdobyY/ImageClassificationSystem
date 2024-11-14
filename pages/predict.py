@@ -1,8 +1,9 @@
 import streamlit as st
 from PIL import Image
-import tensorflow as tf
 import numpy as np
 import pandas as pd
+
+from utils import *
 
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
 
@@ -53,7 +54,7 @@ def show_predict_page():
                 st.session_state.all_predictions.clear()  # Очищаємо попередні передбачення
 
                 for model_name in selected_models:
-                    model = tf.keras.models.load_model(model_name)
+                    model = load_model(model_name)
                     predictions = predict(image, model)
                     top_3_indices = np.argsort(predictions[0])[-3:][::-1]
                     top_3_predictions = [(class_indices[index], predictions[0][index]) for index in top_3_indices]

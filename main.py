@@ -4,10 +4,9 @@ from pages.predict import show_predict_page
 from pages.models import show_models_page
 from pages.upload import show_upload_page
 from database import add_user, get_user
+from database import create_table, create_models_table
 import bcrypt
 
-# Створення бази даних та таблиці ��ористувачів
-from database import create_table, create_models_table
 create_table()
 create_models_table()
 
@@ -20,7 +19,7 @@ def register_user():
     if st.button("Зареєструватися"):
         if username and password and confirm_password:
             if password != confirm_password:
-                st.error("Паролі не з��ігаються")
+                st.error("Паролі не збігаються")
             else:
                 user = get_user(username)
                 if user:
@@ -31,7 +30,6 @@ def register_user():
         else:
             st.error("Будь ласка, введіть ім'я користувача та пароль")
 
-# Функція для входу користувачів
 def login_user():
     st.title("Вхід")
     username = st.text_input("Введіть ім'я користувача")
