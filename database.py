@@ -72,7 +72,7 @@ def add_user(username, password):
             cursor.close()
         release_connection(conn)
 
-st.cache_data
+
 def get_user(username):
     try:
         conn = get_connection()
@@ -110,7 +110,7 @@ def add_model(user_id, model_name, class_indices, model_filename, model_path):
             cursor.close()
         release_connection(conn)
 
-@st.cache_data
+
 def get_models(user_id):
     try:
         conn = get_connection()

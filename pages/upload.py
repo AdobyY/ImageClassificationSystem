@@ -1,10 +1,9 @@
 import streamlit as st
-from database import add_model, get_user
-import json
+from database import add_model, get_user, get_models
 import os
 import uuid
 import pandas as pd
-from database import get_models
+
 
 def show_upload_page():
     st.title("Завантаження моделі")
@@ -83,6 +82,7 @@ def show_upload_page():
                 # Видалення збереженого файлу, якщо не вдалося додати його до бази даних
                 if os.path.exists(model_path):
                     os.remove(model_path)
+        st.rerun()                
 
     st.sidebar.radio("Navigation", ["Predict", "Models", "Model Upload"])
     # Get models for current user and display as dataframe

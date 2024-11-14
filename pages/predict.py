@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 
+from database import get_user, get_models
 from utils import *
 
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
@@ -82,3 +83,11 @@ def show_predict_page():
 
             with Data:
                 st.write(chart_data, use_container_width=True)
+
+    user = get_user(st.session_state['username'])
+    if user:
+        models_df = pd.DataFrame(get_models(user[0]))
+        models_df = models_df.iloc[:, [0]]
+        st.dataframe(models_df)
+
+    user_models = st.sidebar.multiselect('Ваші моделі', models_df)    
