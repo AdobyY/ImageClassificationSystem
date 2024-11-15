@@ -7,49 +7,74 @@ from database import add_user, get_user
 from database import create_table, create_models_table
 import bcrypt
 
+# Create tables
 create_table()
 create_models_table()
 
-# Функція для реєстрації користувачів
+# Initialize session state for persistent login
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+if 'username' not in st.session_state:
+    st.session_state['username'] = None
+
+@st.cache_resource
+def get_auth_manager():
+    return {
+        "current_user": None,
+        "auth_status": False
+    }
+
+auth_manager = get_auth_manager()
+
 def register_user():
     st.title("Реєстрація")
-    username = st.text_input("Введіть ім'я користувача")
-    password = st.text_input("Введіть пароль", type="password")
-    confirm_password = st.text_input("Підтвердіть пароль", type="password")
-    if st.button("Зареєструватися"):
-        if username and password and confirm_password:
-            if password != confirm_password:
-                st.error("Паролі не збігаються")
-            else:
-                user = get_user(username)
-                if user:
-                    st.error("Користувач з таким ім'ям вже існує")
+    with st.form("register_form"):
+        username = st.text_input("Введіть ім'я користувача")
+        password = st.text_input("Введіть пароль", type="password")
+        confirm_password = st.text_input("Підтвердіть пароль", type="password")
+        submit_button = st.form_submit_button("Зареєструватися")
+        
+        if submit_button:
+            if username and password and confirm_password:
+                if password != confirm_password:
+                    st.error("Паролі не збігаються")
                 else:
-                    add_user(username, password)
-                    st.success("Реєстрація успішна. Тепер ви можете увійти.")
-        else:
-            st.error("Будь ласка, введіть ім'я користувача та пароль")
+                    user = get_user(username)
+                    if user:
+                        st.error("Користувач з таким ім'ям вже існує")
+                    else:
+                        add_user(username, password)
+                        st.success("Реєстрація успішна. Тепер ви можете увійти.")
+            else:
+                st.error("Будь ласка, введіть ім'я користувача та пароль")
 
 def login_user():
     st.title("Вхід")
-    username = st.text_input("Введіть ім'я користувача")
-    password = st.text_input("Введіть пароль", type="password")
-    if st.button("Увійти"):
-        if username and password:
-            user = get_user(username)
-            if user and bcrypt.checkpw(password.encode('utf-8'), user[2]):
-                st.session_state['logged_in'] = True
-                st.session_state['username'] = username
-                st.rerun()
+    with st.form("login_form"):
+        username = st.text_input("Введіть ім'я користувача")
+        password = st.text_input("Введіть пароль", type="password")
+        submit_button = st.form_submit_button("Увійти")
+        
+        if submit_button:
+            if username and password:
+                user = get_user(username)
+                if user and bcrypt.checkpw(password.encode('utf-8'), user[2]):
+                    st.session_state['logged_in'] = True
+                    st.session_state['username'] = username
+                    auth_manager["current_user"] = username
+                    auth_manager["auth_status"] = True
+                    st.rerun()
+                else:
+                    st.error("Невірне ім'я користувача або пароль")
             else:
-                st.error("Невірне ім'я користувача або пароль")
-        else:
-            st.error("Будь ласка, введіть ім'я користувача та пароль")
+                st.error("Будь ласка, введіть ім'я користувача та пароль")
 
-# Перевірка, чи користувач увійшов
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
+# Check if user is already authenticated
+if auth_manager["auth_status"]:
+    st.session_state['logged_in'] = True
+    st.session_state['username'] = auth_manager["current_user"]
 
+# Main application logic
 if st.session_state['logged_in']:
     with st.sidebar:
         selected = option_menu(
@@ -57,11 +82,14 @@ if st.session_state['logged_in']:
             options=["Predict", "Models", "Model Upload"],
             icons=["house", "book", "download"]
         )
+        
         if st.button("Logout"):
             st.session_state['logged_in'] = False
-            st.session_state['username'] = ""
+            st.session_state['username'] = None
+            auth_manager["current_user"] = None
+            auth_manager["auth_status"] = False
             st.rerun()
-
+    
     if selected == "Predict":
         show_predict_page()
     elif selected == "Models":
