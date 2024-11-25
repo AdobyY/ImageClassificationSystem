@@ -49,9 +49,9 @@ def show_upload_page():
                 st.error("Користувач не знайдено.")
                 return
             user_id = user[0]
-            st.write(pd.DataFrame(get_models(user[0]))[0].values)
-            if model_name in pd.DataFrame(get_models(user[0]))[0].values:
-                
+            # st.write(pd.DataFrame(get_models(user[0]))[0].values)
+            models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'model_path', 'class_indices'])
+            if not models_df.empty and model_name in models_df['model_name'].values:
                 st.error(f"Модель з ім'ям '{model_name}' вже існує. Виберіть інше ім'я.")
                 return
 
@@ -59,10 +59,7 @@ def show_upload_page():
             models_dir = os.path.join("user_models", f"user_{st.session_state['username']}")
             os.makedirs(models_dir, exist_ok=True)
             
-            # Створення унікальної назви файлу
-            unique_suffix = uuid.uuid4().hex
-            safe_model_name = "".join(c if c.isalnum() else "_" for c in model_name)
-            full_model_name = f"{safe_model_name}_{st.session_state['username']}_{unique_suffix}.h5"
+            full_model_name = f"{model_name}_{st.session_state['username']}.h5"
             model_path = os.path.join(models_dir, full_model_name)
             
             # Збереження завантаженої моделі на файлову систему
@@ -75,7 +72,7 @@ def show_upload_page():
             
             # Додавання моделі до бази даних
             try:
-                add_model(user_id, safe_model_name, class_indices, full_model_name, models_dir)
+                add_model(user_id, model_name, class_indices, models_dir)
                 st.success("Модель успішно завантажена.")
             except Exception as e:
                 st.error(f"Сталася помилка при додаванні моделі до бази даних: {e}")
@@ -87,7 +84,7 @@ def show_upload_page():
     st.sidebar.radio("Navigation", ["Predict", "Models", "Model Upload"])
     # Get models for current user and display as dataframe
     
-    user = get_user(st.session_state['username'])
-    if user:
-        models_df = pd.DataFrame(get_models(user[0]))
-        st.dataframe(models_df)
+    # user = get_user(st.session_state['username'])
+    # if user:
+    #     models_df = pd.DataFrame(get_models(user[0]))
+    #     st.dataframe(models_df)

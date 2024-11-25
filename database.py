@@ -91,12 +91,11 @@ def get_user(username):
             cursor.close()
         release_connection(conn)
 
-def add_model(user_id, model_name, class_indices, model_filename, model_path):
+def add_model(user_id, model_name, class_indices, model_path):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        unique_suffix = uuid.uuid4().hex  # Generate unique identifier
-        full_model_name = f"{model_name}_{st.session_state['username']}_{unique_suffix}.h5"  # Naming convention
+        full_model_name = f"{model_name}_{st.session_state['username']}.h5"  # Naming convention
         full_model_path = os.path.join(model_path, full_model_name)  # Complete file path
         cursor.execute('INSERT INTO models (user_id, model_name, model_path, class_indices) VALUES (%s, %s, %s, %s)',
                       (user_id, model_name, full_model_path, json.dumps(class_indices)))

@@ -85,9 +85,9 @@ def show_predict_page():
                 st.write(chart_data, use_container_width=True)
 
     user = get_user(st.session_state['username'])
-    if user:
-        models_df = pd.DataFrame(get_models(user[0]))
-        models_df = models_df.iloc[:, [0]]
-        st.dataframe(models_df)
+    # if user:
+    #     models_df = pd.DataFrame(get_models(user[0]))
+    #     models_df = models_df.iloc[:, [0]]
+    #     st.dataframe(models_df)
 
-    user_models = st.sidebar.multiselect('Ваші моделі', models_df)    
+    # user_models = st.sidebar.multiselect('Ваші моделі', models_df)    
