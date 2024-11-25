@@ -82,7 +82,7 @@ def show_predict_page():
                         st.bar_chart(chart_data, stack=False)
 
             with Data:
-                st.write(chart_data, use_container_width=True)
+                st.write(chart_data)
 
     user = get_user(st.session_state['username'])
     # if user:

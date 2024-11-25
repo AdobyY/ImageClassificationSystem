@@ -1,10 +1,8 @@
-import psycopg2
+import psycopg2.pool
 import bcrypt
 import json
-from psycopg2 import pool
 import os
 import streamlit as st
-import uuid  # Add import for unique identifiers
 
 # Налаштування пулу з'єднань
 connection_pool = psycopg2.pool.SimpleConnectionPool(
@@ -109,6 +107,32 @@ def add_model(user_id, model_name, class_indices, model_path):
             cursor.close()
         release_connection(conn)
 
+def remove_model_from_db(model_name):
+    user = get_user(st.session_state['username'])
+    user_id = user[0]
+    try:
+        # Отримання з'єднання з базою даних
+        conn = get_connection()
+        cursor = conn.cursor()
+        delete_query = """
+            DELETE FROM models
+            WHERE user_id = %s AND model_name = %s
+        """
+        cursor.execute(delete_query, (user_id, model_name))
+        conn.commit()
+        return True
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Помилка при видаленні моделі '{model_name}' для користувача з ID {user_id}: {error}")
+        if conn:
+            conn.rollback()  # Відкочування транзакції у випадку помилки
+        return False
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            release_connection(conn)
 
 def get_models(user_id):
     try:
