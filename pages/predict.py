@@ -8,14 +8,6 @@ from utils import *
 
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
 
-# Функція для передбачення класу зображення
-def predict(image, model):
-    image = image.resize((368, 368))
-    image = image.convert('RGB')
-    image = np.array(image) / 255.0
-    image = np.expand_dims(image, axis=0)
-    predictions = model.predict(image)
-    return predictions
 
 def show_predict_page():
 # Інтерфейс Streamlit
