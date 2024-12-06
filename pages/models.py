@@ -1,8 +1,10 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 from PIL import Image
 
 from utils import *
+from database import get_user, get_models
 
 
 class_indices = {0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60', 4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62', 8: 'T72', 9: 'ZIL131', 10: 'ZSU_23_4'}
@@ -19,14 +21,20 @@ def predict(image, model):
 def show_models_page():
     files = st.sidebar.file_uploader("Add your files", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
 
+    user = get_user(st.session_state['username'])
+    if user:
+        models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'class_indices', 'model_path'])
+    
+
+    # model_files = {
+    #     "model-10": "model-10.h5",
+    #     "model-20": "model-20.h5",
+    #     "model-30": "model-30.h5"
+    # }
+
+    model_files = models_df.set_index('model_name')['model_path'].to_dict()
+
     models = {}
-
-    model_files = {
-        "model-10": "model-10.h5",
-        "model-20": "model-20.h5",
-        "model-30": "model-30.h5"
-    }
-
     # Load the models
     for model_name, model_path in model_files.items():
         models[model_name] = load_model(model_path)
