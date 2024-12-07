@@ -80,11 +80,4 @@ def show_upload_page():
                 if os.path.exists(model_path):
                     os.remove(model_path)
         st.rerun()                
-
-    st.sidebar.radio("Navigation", ["Predict", "Models", "Model Upload"])
-    # Get models for current user and display as dataframe
-    
-    # user = get_user(st.session_state['username'])
-    # if user:
-    #     models_df = pd.DataFrame(get_models(user[0]))
-    #     st.dataframe(models_df)
+        
