@@ -9,20 +9,9 @@ from database import get_user, get_models
 def show_models_page():
     files = st.sidebar.file_uploader("Add your files", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
     
-    # Отримуємо користувача з сесії
-    user = get_user(st.session_state['username'])
-    if user:
-        models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'class_indices', 'model_path'])
-    else:
-        st.error("No user found")
-        return
+
     
-    # Створюємо словник моделей
-    model_files = models_df.set_index('model_name')['model_path'].to_dict()
-    
-    models = {}
-    for model_name, model_path in model_files.items():
-        models[model_name] = load_model(model_path)
+    models, models_df = get_models_dict_and_df()
     
     selected_model = st.sidebar.selectbox("Select a model", list(models.keys()))
     
@@ -57,3 +46,21 @@ def show_models_page():
             return
         
         st.write(probabilities_df)
+
+
+def get_models_dict_and_df():
+    user = get_user(st.session_state['username'])
+    if user:
+        models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'class_indices', 'model_path'])
+    else:
+        st.error("No user found")
+        return
+    
+    # Створюємо словник моделей
+    model_files = models_df.set_index('model_name')['model_path'].to_dict()
+    
+    models = {}
+    for model_name, model_path in model_files.items():
+        models[model_name] = load_model(model_path)
+    
+    return models, models_df
