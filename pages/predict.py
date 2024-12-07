@@ -7,6 +7,7 @@ from database import get_user, get_models
 from utils import *
 
 def show_predict_page():
+    st.write("# Image Classification")
     # Initialize session state variables if not already set
     if 'uploaded_file' not in st.session_state:
         st.session_state.uploaded_file = None
@@ -41,9 +42,12 @@ def show_predict_page():
             
             with col1:
                 st.image(image, use_container_width=True)
+                st.text("")
+                st.text("")
+                btn_predict = st.button('Predict')
             
             with col2:
-                if st.button('Predict'):
+                if btn_predict:
                     if not selected_models:
                         st.warning('Будь ласка, оберіть хоча б одну модель для передбачення.')
                     else:
@@ -92,6 +96,9 @@ def show_predict_page():
                     if 'chart_data' in locals():
                         st.write(chart_data)
 
+        else:
+            st.info('Завантажте своє зображення для передбачення.')
+
     with col_visualize:
         if st.session_state.uploaded_file is not None and selected_models:
             # Use first selected model for saliency map
@@ -137,7 +144,9 @@ def show_predict_page():
                     )
                     st.pyplot(fig)
                     plt.close(fig)
-                    st.write(f"Передбачений клас: {st.session_state['predicted_class']}")
+
+        else:
+            st.warning('Будь ласка, завантажте зображення та оберіть модель для візуалізації.')
 
 def get_models_dict_and_df():
     user = get_user(st.session_state['username'])

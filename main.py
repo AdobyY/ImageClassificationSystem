@@ -1,7 +1,7 @@
 from streamlit_option_menu import option_menu
 import streamlit as st
 from pages.predict import show_predict_page
-from pages.models import show_models_page
+from pages.analysis import show_models_page
 from pages.upload import show_upload_page
 from pages.my_models import show_my_models
 from database import add_user, get_user
@@ -80,8 +80,8 @@ if st.session_state['logged_in']:
     with st.sidebar:
         selected = option_menu(
             menu_title=None,
-            options=["Predict", "Models", "Model Upload", "My Models"],
-            icons=["house", "book", "download", "bookmark"]
+            options=["Predict", "Analysis", "Model Upload", "My Models"],
+            icons=["house", "clipboard-data", "download", "bookmark"]
         )
         
         if st.button("Logout"):
@@ -93,7 +93,7 @@ if st.session_state['logged_in']:
     
     if selected == "Predict":
         show_predict_page()
-    elif selected == "Models":
+    elif selected == "Analysis":
         show_models_page()
     elif selected == "Model Upload":
         show_upload_page()
