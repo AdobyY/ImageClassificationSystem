@@ -50,42 +50,46 @@ def show_models_page():
             alpha = st.slider('Alpha (Overlay)', 0.0, 1.0, 0.4, 0.1)    
             colormap = st.selectbox('Colormap', ['jet', 'viridis', 'plasma', 'inferno', 'cividis'])
             
-            # Button to generate saliency maps
-            generate_button = st.button("Generate Saliency Maps")
+            col1, col2 = st.columns(2)
             
-            # Only process and show saliency maps when button is pressed
-            if generate_button:
-                # Validate that files and models are selected
-                if not files or not selected_models:
-                    st.warning("Please upload files and select models")
-                else:
-                    # Store current parameters in session state
-                    st.session_state['saliency_params'] = {
-                        'power': power,
-                        'alpha': alpha,
-                        'colormap': colormap
-                    }
-                    
-                    # Use the first selected model
-                    model = models[selected_models[0]]
-                    processed_images = []
-                    
-                    for file in files:
-                        image = Image.open(file)
-                        processed_image, _ = load_and_preprocess_image(file, model=model)
-                        saliency_map, predicted_class = generate_saliency_map(model, processed_image)
+            with col2:
+                # Button to generate saliency maps
+                generate_button = st.button("Generate Saliency Maps")
+                
+                # Store parameters to persist across button presses
+                st.session_state['saliency_params'] = {
+                    'power': power,
+                    'alpha': alpha,
+                    'colormap': colormap
+                }
+            
+            with col1:
+                # Only process and show saliency maps when button is pressed
+                if generate_button:
+                    # Validate that files and models are selected
+                    if not files or not selected_models:
+                        st.warning("Please upload files and select models")
+                    else:
+                        # Use the first selected model
+                        model = models[selected_models[0]]
+                        processed_images = []
                         
-                        fig = visualize_saliency_on_image(
-                            processed_image,
-                            saliency_map,
-                            alpha=alpha,
-                            power=power,
-                            colormap_name=colormap
-                        )
-                        processed_images.append((fig, file.name))
-                    
-                    # Store processed images in session state
-                    st.session_state['processed_images'] = processed_images
+                        for file in files:
+                            image = Image.open(file)
+                            processed_image, _ = load_and_preprocess_image(file, model=model)
+                            saliency_map, predicted_class = generate_saliency_map(model, processed_image)
+                            
+                            fig = visualize_saliency_on_image(
+                                processed_image,
+                                saliency_map,
+                                alpha=st.session_state['saliency_params']['alpha'],
+                                power=st.session_state['saliency_params']['power'],
+                                colormap_name=st.session_state['saliency_params']['colormap']
+                            )
+                            processed_images.append((fig, file.name))
+                        
+                        # Store processed images in session state
+                        st.session_state['processed_images'] = processed_images
             
             # Display grid of processed images only when they exist in session state
             if 'processed_images' in st.session_state:
