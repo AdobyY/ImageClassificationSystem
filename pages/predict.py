@@ -14,17 +14,23 @@ def show_predict_page():
     if 'all_predictions' not in st.session_state:
         st.session_state.all_predictions = []
     
-    # Fetch models only once
-    if 'models' not in st.session_state or 'models_df' not in st.session_state:
-        st.session_state.models, st.session_state.models_df = get_models_dict_and_df()
+    # Fetch models only once - use the working version from the second page
+    user = get_user(st.session_state['username'])
+    if not user:
+        st.error("No user found")
+        return
+    
+    models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'class_indices', 'model_path'])
+    models = {name: load_model(path) for name, path in 
+             models_df.set_index('model_name')['model_path'].items()}
 
     # Sidebar file uploader and model selection
-    uploaded_file = st.sidebar.file_uploader("Завантажте своє зображення", type=["jpg", "jpeg", "png"], key='shared_uploader')
+    uploaded_file = st.sidebar.file_uploader("Upload your image", type=["jpg", "jpeg", "png"], key='shared_uploader')
     
     # Unified model multiselect for both tabs
     selected_models = st.sidebar.multiselect(
-        "Оберіть моделі", 
-        list(st.session_state.models.keys())
+        "Choose model", 
+        list(models.keys())
     )
 
     # Create tabs
@@ -49,22 +55,21 @@ def show_predict_page():
             with col2:
                 if btn_predict:
                     if not selected_models:
-                        st.warning('Будь ласка, оберіть хоча б одну модель для передбачення.')
+                        st.toast('Please select at least one model to predict.', icon="🚨")
                     else:
                         st.session_state.all_predictions.clear()  # Clear previous predictions
 
                         for model_name in selected_models:
-                            model = st.session_state.models[model_name]
                             # Get class indices for current model
-                            class_indices = st.session_state.models_df.loc[
-                                st.session_state.models_df['model_name'] == model_name, 
+                            class_indices = models_df.loc[
+                                models_df['model_name'] == model_name, 
                                 'class_indices'
                             ].values[0]
                             
                             if isinstance(class_indices, str):
                                 class_indices = eval(class_indices)
                             
-                            predictions = predict(image, model)
+                            predictions = predict(image, models[model_name])
                             top_3_indices = np.argsort(predictions[0])[-3:][::-1]
                             top_3_predictions = [(class_indices[str(index)], predictions[0][index]) for index in top_3_indices]
                             st.session_state.all_predictions.append((model_name, top_3_predictions))
@@ -97,7 +102,7 @@ def show_predict_page():
                         st.write(chart_data)
 
         else:
-            st.info('Завантажте своє зображення для передбачення.')
+            st.info('Upload your image for prediction')
 
     with col_visualize:
         if st.session_state.uploaded_file is not None and selected_models:
@@ -107,26 +112,26 @@ def show_predict_page():
             # Ensure image is preprocessed for saliency map
             image, original_size = load_and_preprocess_image(
                 st.session_state.uploaded_file, 
-                model=st.session_state.models[selected_model]
+                model=models[selected_model]
             )
 
             col1, col2 = st.columns(2)
 
             with col2:
-                power = st.slider('Power (Підвищення важливості ознак)', 1.0, 5.0, 2.0, 0.1)
-                alpha = st.slider('Alpha (Коефіцієнт накладення)', 0.0, 1.0, 0.7, 0.1)
+                power = st.slider('Power (Increasing the importance of signs)', 1.0, 5.0, 2.0, 0.1)
+                alpha = st.slider('Alpha (Overlap coefficient)', 0.0, 1.0, 0.7, 0.1)
                 colormap_name = st.selectbox('Колірна карта', [
                     'coolwarm', 'viridis', 'plasma', 'inferno', 'cividis'
                 ])
 
-                if st.button('Згенерувати Saliency Map'):
+                if st.button('Generate Saliency Map'):
                     # Ensure image is preprocessed for saliency map
                     image, original_size = load_and_preprocess_image(
                         st.session_state.uploaded_file, 
-                        model=st.session_state.models[selected_model]
+                        model=models[selected_model]
                     )
                     saliency_map, predicted_class = generate_saliency_map(
-                        st.session_state.models[selected_model], 
+                        models[selected_model], 
                         image
                     )
                     st.session_state['saliency_map'] = saliency_map
@@ -145,8 +150,6 @@ def show_predict_page():
                     st.pyplot(fig)
                     plt.close(fig)
 
-        else:
-            st.warning('Будь ласка, завантажте зображення та оберіть модель для візуалізації.')
 
 def get_models_dict_and_df():
     user = get_user(st.session_state['username'])

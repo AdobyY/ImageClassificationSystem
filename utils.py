@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing import image as keras_image
 from PIL import Image
-# import cv2
 
 @st.cache_resource
 def load_model(name):

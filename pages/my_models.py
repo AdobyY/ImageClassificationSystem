@@ -8,10 +8,12 @@ from utils import *
 
 
 def show_my_models():
+    st.title("Manage My Models")
+    st.divider()    
+
     user = get_user(st.session_state['username'])
     if user:
         models_df = pd.DataFrame(get_models(user[0]), columns=['model_name', 'class_indices', 'model_path'])
-        st.dataframe(models_df)
 
         for _, row in models_df.iterrows():
             model_name, model_path = row['model_name'], row['model_path']
@@ -21,15 +23,19 @@ def show_my_models():
                 continue 
 
             with st.container():
-                col_name, col_button, col_button2 = st.columns([3, 1, 1])
+                col_name, col_button1, col_button2, col_button3 = st.columns([5, 2, 3, 2])
                 with col_name:
                     st.write("") 
                     st.write(f"📄 **{model_name.capitalize()}**")
-                with col_button:
+                with col_button1:
                     if st.button("🔍 View", key=model_name,
                                  use_container_width=True):
                         show_model(model_path)
                 with col_button2:
+                    if st.button("🔭 View Base Model", key=f"{model_name}_base",
+                                 use_container_width=True):
+                        show_model(model_path, base_model=True)
+                with col_button3:
                     if st.button("🗑️ Delete", key=f"{model_name}_delete",
                               use_container_width=True):
                             @st.dialog(f"🚨 Ви впевнені, що хочете видалити модель '{model_name.capitalize()}'?")
@@ -51,9 +57,10 @@ def show_my_models():
                                            
 
 
-def show_model(model_path):
+def show_model(model_path, base_model=False):
     summary = io.StringIO()
     model = load_model(model_path)
+    model = model if not base_model else model.layers[0]
     model.summary(print_fn=lambda x: summary.write(x + '\n'))
     summary_str = summary.getvalue()
 
