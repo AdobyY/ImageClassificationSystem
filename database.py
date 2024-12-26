@@ -4,14 +4,14 @@ import json
 import os
 import streamlit as st
 
-# Налаштування пулу з'єднань
+
 connection_pool = psycopg2.pool.SimpleConnectionPool(
     minconn=1,
     maxconn=10,
-    host="localhost",  # змініть на ваш хост
+    host="localhost",  
     database="test",
-    user="postgres",  # стандартний користувач PostgreSQL
-    password="root"  # змініть на ваш пароль
+    user="postgres", 
+    password="root"
 )
 
 def get_connection():

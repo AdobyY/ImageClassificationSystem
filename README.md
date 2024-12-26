@@ -102,7 +102,7 @@ showSidebarNavigation = false
 
 ## Coursework
 
-The project includes a coursework document that provides detailed information about the development and functionality of the ImageClassificationSystem. You can find the coursework document in the `Ярінко Богдан КА-42мп Курсова робота.docx` file.
+The project includes a coursework document that provides detailed information about the development and functionality of the ImageClassificationSystem. You can find the coursework document in the `КР_ЯрінкоБогданБогданович_КА-42мп.pdf` file.
 
 
 ## Contributing

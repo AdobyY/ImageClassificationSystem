@@ -1,8 +1,8 @@
-import streamlit as st
-from database import add_model, get_user, get_models
 import os
-import uuid
 import pandas as pd
+import streamlit as st
+
+from database import add_model, get_user, get_models
 
 
 def show_upload_page():

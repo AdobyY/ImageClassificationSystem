@@ -1,12 +1,14 @@
-from streamlit_option_menu import option_menu
+import bcrypt
 import streamlit as st
+
+from streamlit_option_menu import option_menu
+
 from pages.predict import show_predict_page
 from pages.analysis import show_models_page
 from pages.upload import show_upload_page
 from pages.my_models import show_my_models
 from database import add_user, get_user
 from database import create_table, create_models_table
-import bcrypt
 
 # Create tables
 create_table()
@@ -28,33 +30,33 @@ def get_auth_manager():
 auth_manager = get_auth_manager()
 
 def register_user():
-    st.title("Реєстрація")
+    st.title("Registration")
     with st.form("register_form"):
-        username = st.text_input("Введіть ім'я користувача")
-        password = st.text_input("Введіть пароль", type="password")
-        confirm_password = st.text_input("Підтвердіть пароль", type="password")
-        submit_button = st.form_submit_button("Зареєструватися")
+        username = st.text_input("Enter username")
+        password = st.text_input("Enter password", type="password")
+        confirm_password = st.text_input("Confirm password", type="password")
+        submit_button = st.form_submit_button("Register")
         
         if submit_button:
             if username and password and confirm_password:
                 if password != confirm_password:
-                    st.error("Паролі не збігаються")
+                    st.error("Passwords do not match")
                 else:
                     user = get_user(username)
                     if user:
-                        st.error("Користувач з таким ім'ям вже існує")
+                        st.error("User with this username already exists")
                     else:
                         add_user(username, password)
-                        st.success("Реєстрація успішна. Тепер ви можете увійти.")
+                        st.success("Registration successful. You can now log in.")
             else:
-                st.error("Будь ласка, введіть ім'я користувача та пароль")
+                st.error("Please enter a username and password")
 
 def login_user():
-    st.title("Вхід")
+    st.title("Login")
     with st.form("login_form"):
-        username = st.text_input("Введіть ім'я користувача")
-        password = st.text_input("Введіть пароль", type="password")
-        submit_button = st.form_submit_button("Увійти")
+        username = st.text_input("Enter username")
+        password = st.text_input("Enter password", type="password")
+        submit_button = st.form_submit_button("Login")
         
         if submit_button:
             if username and password:
@@ -66,9 +68,9 @@ def login_user():
                     auth_manager["auth_status"] = True
                     st.rerun()
                 else:
-                    st.error("Невірне ім'я користувача або пароль")
+                    st.error("Invalid username or password")
             else:
-                st.error("Будь ласка, введіть ім'я користувача та пароль")
+                st.error("Please enter a username and password")
 
 # Check if user is already authenticated
 if auth_manager["auth_status"]:
@@ -101,8 +103,8 @@ if st.session_state['logged_in']:
         show_my_models()        
 
 else:
-    auth_option = st.sidebar.radio("Виберіть опцію", ["Вхід", "Реєстрація"])
-    if auth_option == "Вхід":
+    auth_option = st.sidebar.radio("Choose an option", ["Login", "Register"])
+    if auth_option == "Login":
         login_user()
-    elif auth_option == "Реєстрація":
+    elif auth_option == "Register":
         register_user()
