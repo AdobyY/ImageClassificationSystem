@@ -16,56 +16,50 @@ ImageClassificationSystem is a web-based application built using Streamlit that 
 
 ```
 ImageClassificationSystem/
-├── __pycache__/
 ├── .gitignore
 ├── .streamlit/
 │   └── config.toml
+├── Examples
 ├── database.py
 ├── main.py
 ├── pages/
-│   ├── __pycache__/
 │   ├── analysis.py
 │   ├── my_models.py
 │   ├── predict.py
 │   ├── upload.py
 ├── README.md
 ├── user_models/
-│   ├── user_1/
-│   └── user_a/
-│       ├── DenseNeet_a.h5
-│       ├── EfficientNet_a.h5
-│       ├── MobileNet_a.h5
-│       └── ResNet_a.h5
 └── utils.py
 ```
 
 ## Installation
 
 1. **Clone the repository**:
-    ```sh
-    git clone https://github.com/yourusername/ImageClassificationSystem.git
-    cd ImageClassificationSystem
-    ```
 
+   ```sh
+   git clone https://github.com/yourusername/ImageClassificationSystem.git
+   cd ImageClassificationSystem
+   ```
 2. **Create a virtual environment**:
-    ```sh
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
-    ```
 
+   ```sh
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+   ```
 3. **Install dependencies**:
-    ```sh
-    pip install -r requirements.txt
-    ```
 
+   ```sh
+   pip install -r requirements.txt
+   ```
 4. **Set up the database**:
-    - Ensure you have PostgreSQL installed and running.
-    - Update the database connection settings in [`database.py`](database.py).
 
+   - Ensure you have PostgreSQL installed and running.
+   - Update the database connection settings in [`database.py`](database.py).
 5. **Run the application**:
-    ```sh
-    streamlit run main.py
-    ```
+
+   ```sh
+   streamlit run main.py
+   ```
 
 ## Usage
 
@@ -104,11 +98,9 @@ showSidebarNavigation = false
 
 The project includes a coursework document that provides detailed information about the development and functionality of the ImageClassificationSystem. You can find the coursework document in the `КР_ЯрінкоБогданБогданович_КА-42мп.pdf` file.
 
-
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
-
 
 ## Acknowledgements
 

@@ -9,7 +9,6 @@ npm-debug.log*
 todo.md
 
 users.db
-user_models/
 
 # Ignore build directories
 dist/
